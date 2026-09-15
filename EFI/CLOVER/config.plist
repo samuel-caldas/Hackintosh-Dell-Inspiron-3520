@@ -206,6 +206,20 @@
 					SUdQVQhfQURSDAAAAgA=
 					</data>
 				</dict>
+				<dict>
+					<key>Comment</key>
+					<string>change Method(GPRW,2,N) to XPRW</string>
+					<key>Disabled</key>
+					<false/>
+					<key>Find</key>
+					<data>
+					R1BSVwI=
+					</data>
+					<key>Replace</key>
+					<data>
+					WFBSVwI=
+					</data>
+				</dict>
 			</array>
 		</dict>
 		<key>DropTables</key>
@@ -232,11 +246,11 @@
 				<key>APSN</key>
 				<false/>
 				<key>CStates</key>
-				<false/>
+				<true/>
 				<key>PStates</key>
-				<false/>
+				<true/>
 				<key>PluginType</key>
-				<false/>
+				<true/>
 			</dict>
 			<key>NoOemTableId</key>
 			<false/>
@@ -432,6 +446,8 @@
 			<key>FixOwnership</key>
 			<true/>
 			<key>Inject</key>
+			<true/>
+			<key>HighCurrent</key>
 			<true/>
 		</dict>
 	</dict>
