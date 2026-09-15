@@ -1,92 +1,132 @@
-# How to Install Mac OS High Sierra 10.13.6 on Laptop Dell Inspiron 3520
+# macOS High Sierra (10.13.6) on Dell Inspiron 3520
 
-# Preview:
-<p align="center"><img src ="/images/img1.png"  /></p>
-<p align="center"><img src ="/images/img2.png"  /></p>
+Clover EFI configuration, patched ACPI files, and post-installation drivers for Dell Inspiron 3520 running macOS High Sierra 10.13.6.
 
-#
+## Previews
+<p align="center">
+  <img src="images/img1.png" alt="Desktop Screenshot" width="48%" />
+  <img src="images/img2.png" alt="About This Mac" width="48%" />
+</p>
 
-### Download: [RELEASES](https://github.com/thuanvoit/Hackintosh-Dell-Inspiron-3520/releases)
+---
 
+## Hardware Specifications
+| Component | Specification | Status |
+| :--- | :--- | :--- |
+| **CPU** | Intel Core i5-3230M @ 2.60 GHz (Ivy Bridge) | Supported |
+| **GPU** | Intel HD Graphics 4000 (1536 MB) | Supported (Full QE/CI) |
+| **RAM** | 8 GB DDR3 1600 MHz | Supported |
+| **Storage** | 500 GB HDD / SATA SSD | Supported |
+| **Wi-Fi + BT** | Broadcom BCM943225HM (Half Mini PCIe) | Supported (via `Post-Install/WiFi-BCM943225HM`) |
+| **Audio** | Cirrus Logic CS4213 | Supported (VoodooHDA 2.8.9) |
+| **Touchpad** | ALPS Trackpad (2 fingers scrolling) | Supported (via `Post-Install/Trackpad-ALPS`) |
+| **Webcam** | Integrated Webcam | Supported |
+| **Sleep / Wake** | Native S3 | Supported |
+| **Microphone** | Internal Mic | Not working / Needs tuning |
+| **HDMI Video** | HDMI Output | Untested |
 
-# System information
-- Processor : Intel(R) Core(TM) i5-3230M CPU @ 2.60GHz (Ivy Bridge)
-- Graphics Processor(GPU) : Intel HD4000 1536 MB Graphics
-- Hard disk : HDD 500GB
-- RAM : 8GB DDR3 / bus 1600
-- Wifi + Buetooth: BCM943225HM
-- Audio : Cirrus Logic CS4213
-- Touchpad : ALPS Touchpad
-- Webcam 
+---
 
-### Working
-- Graphics HD 4000
-- Brightness
-- Fn Brightness keys (Use lastest VoodooPS2Controller and set keyboard shortcuts)
-- Sleep and wake
-- Audio (VoodooHDA 2.8.9 only)
-- WIFI + BLUETOOTH
-- LAN
-- USB
-- Touchpad (2 fingers scrolling)
-- Webcam
-- iMessages, Facetime and iCloud
-### Not working
-- Microphone
-- HDMI (no test)
+## Repository Structure
+```
+Hackintosh-Dell-Inspiron-3520/
+├── EFI/                              # Drop-in EFI folder for EFI partition
+│   ├── BOOT/
+│   │   └── BOOTX64.efi               # UEFI Bootloader executable
+│   └── CLOVER/
+│       ├── ACPI/patched/             # Contains patched DSDT.aml and SSDT-PNLF.aml
+│       ├── config.plist              # Tuned Clover configuration for HD4000
+│       ├── drivers64UEFI/            # UEFI drivers (AptioMemoryFix, HFSPlus, APFS, etc.)
+│       ├── kexts/Other/              # Core kexts (Lilu, FakeSMC, Realtek, USB, etc.)
+│       ├── misc/
+│       ├── themes/
+│       └── tools/
+├── DSDT/                             # Original ACPI source files for reference
+│   ├── DSDT.aml
+│   └── SSDT-PNLF.aml
+├── Post-Install/                     # Device-specific post-install packages
+│   ├── Audio-VoodooHDA/              # VoodooHDA 2.8.9 kext and prefPane
+│   ├── Keyboard-VoodooPS2/           # VoodooPS2 controller and daemon
+│   ├── Trackpad-ALPS/                # ALPS trackpad prefPane, plugin & kext
+│   └── WiFi-BCM943225HM/             # Broadcom WiFi injector kexts
+├── Tools/                            # Essential macOS diagnostic & editing tools
+│   ├── Clover Configurator.app
+│   ├── IORegistryExplorer.app
+│   ├── Karabiner-Elements-12.1.0.dmg
+│   ├── MaciASL.app
+│   ├── PlistEdit Pro.app
+│   └── iasl.zip
+└── images/                           # Screenshots and assets
+```
 
-# INSTALLATION
+---
 
-### Requirement
-- Turn off Secure Boot in BIOS
-- VMWare to run MACOS or Real Macbook
-- USB 8GB or up
-- Mac OS High Sierra Installer
+## Installation Guide
 
-### Create High Sierra Installer
-Erase and rename your USB to ' install_osx '
-Then copy and paste the code below
+### Prerequisites
+- Dell Inspiron 3520 with UEFI support.
+- BIOS Settings:
+  - Disable **Secure Boot**.
+  - SATA Operation set to **AHCI**.
+- 8GB+ USB Flash Drive.
+- macOS High Sierra 10.13.6 installer application (`Install macOS High Sierra.app`).
 
-Code:
+### 1. Create macOS High Sierra USB Installer
+Format your USB drive as `Mac OS Extended (Journaled)` with `GUID Partition Map` and name it `install_osx`.
+Run in Terminal:
 ```sh
 sudo /Applications/Install\ macOS\ High\ Sierra.app/Contents/Resources/createinstallmedia --volume /Volumes/install_osx --applicationpath /Applications/Install\ macOS\ High\ Sierra.app --nointeraction
 ```
 
-### Keyboard (VoodooPS2Controller and Karabiner Elements)
-- F1: Brightness decrease
-- F2: Brightness increase
-- F3: Mission Control
-- F4: Launchpad
-- F5: Illumination decrease
-- F6: Illumination increase
-- F7: Rewind
-- F8: Play/Pause
-- F9: Fast Forward
-- F10: Mute
-- F11: Volume decrease
-- F12: Volume increase
+### 2. Install Clover EFI
+1. Mount the EFI partition of your USB drive using Clover Configurator (available in [`Tools/`](Tools/)).
+2. Copy the entire [`EFI/`](EFI/) directory from this repository directly into the root of the EFI partition.
+3. Boot the laptop from the USB drive and proceed with macOS installation.
 
-# Fixing Guide
-### ALPS Trackpad
-All files in ' ALPS.VoodooPS2.Rev12 ' folder
-1. /System/Library/HIDPlugins/IOHIDKeyboardFilter.plugin (Synaptics)
-2. /System/Library/PreferencePanes/Trackpad.prefPane
-3. /EFI/CLOVER/kexts/10.12/PS2Controller.kext
-4. /usr/bin/VoodooPS2Daemons & /Library/LaunchDaemons/org.rehabman.voodoo.driver.Daemon.plist (Synaptics)
-5. Jalankan script “Touchpad Settings” (ALPS, ELAN, ...)
-6. Fix permission by Kext Utility & Disk Utility
+### 3. Post-Installation Setup
+After booting into the installed macOS system:
 
-### Keyboard
-[Following Rehabman Guide using VooDooPS2Controller](https://github.com/RehabMan/OS-X-Voodoo-PS2-Controller/wiki/How-to-Install)
+1. **Copy EFI to Internal Disk:**
+   Mount the EFI partition of your internal SSD/HDD and copy the [`EFI/`](EFI/) folder to it.
 
-### Fix function keys
-* Download ' Karabiner-Elements-12.1.0.dmg ' in [Tools](/Tools/)
-* [Karabiner Elements](https://l.facebook.com/l.php?u=https%3A%2F%2Fgithub.com%2Ftekezo%2FKarabiner-Elements&h=AT2DVoTW5UeSOoi4BrHvv-GmIBFkGGlhkF1BE5dQWnsch4Um7YBcoA9PibJ9d62TyUDVqmhKkh3pKUVHX3s2QdbF76VmeK4t-BGFB_dtrSpY0COjQadRXYOrBHqXilUmcc8bqxd3ojGGo_eNr9ZCgRomPT4)
+2. **ALPS Trackpad:**
+   The files are located in [`Post-Install/Trackpad-ALPS/`](Post-Install/Trackpad-ALPS/):
+   - Install `Trackpad.prefPane` into `/System/Library/PreferencePanes/`.
+   - Place `IOHIDKeyboardFilter.plugin` in `/System/Library/HIDPlugins/`.
+   - Use `Touchpad Settings.app` to customize gesture options.
+   - Rebuild kext cache and repair permissions using Kext Utility.
 
-### Credits:
-* [Niemtin007](http://niemtin007.blogspot.com/)
-* [Hackintosh - The OS X on PC World](https://www.facebook.com/groups/hackintoshPC/)
-* [Hieu - Admin Hackintosh Facebook Page](https://www.facebook.com/cobaohieu)
-* [Thang Duong](https://www.facebook.com/thangduong.dev)
-* [Rehabman](https://github.com/RehabMan)
-* [BADRUZEUS SHAVA - Hackintosh Indonesia](https://www.facebook.com/badruzeus)
+3. **Audio (Cirrus Logic CS4213):**
+   Extract archives in [`Post-Install/Audio-VoodooHDA/`](Post-Install/Audio-VoodooHDA/):
+   - Install `VoodooHDA.kext` (v2.8.9) to `/Library/Extensions`.
+   - Install `VoodooHDA.prefPane` to `/Library/PreferencePanes`.
+
+4. **Wi-Fi (BCM943225HM):**
+   If using the Broadcom BCM943225HM mini PCIe card, install the kexts in [`Post-Install/WiFi-BCM943225HM/`](Post-Install/WiFi-BCM943225HM/) to `/Library/Extensions` or keep them injected via Clover.
+
+5. **Function Keys & Keyboard Mapping:**
+   - Install Karabiner Elements from [`Tools/Karabiner-Elements-12.1.0.dmg`](Tools/) or [Karabiner-Elements GitHub](https://github.com/tekezo/Karabiner-Elements).
+   - Shortcut mapping:
+     - `F1`: Brightness Down
+     - `F2`: Brightness Up
+     - `F3`: Mission Control
+     - `F4`: Launchpad
+     - `F5`: Keyboard Backlight Down
+     - `F6`: Keyboard Backlight Up
+     - `F7`: Media Rewind
+     - `F8`: Media Play / Pause
+     - `F9`: Media Fast Forward
+     - `F10`: Mute
+     - `F11`: Volume Down
+     - `F12`: Volume Up
+
+---
+
+## Credits & Acknowledgements
+- [RehabMan](https://github.com/RehabMan) for DSDT patches, VoodooPS2, and kext tools.
+- [Niemtin007](http://niemtin007.blogspot.com/)
+- [Hackintosh - The OS X on PC World](https://www.facebook.com/groups/hackintoshPC/)
+- [Hieu - Admin Hackintosh Facebook Page](https://www.facebook.com/cobaohieu)
+- [Thang Duong](https://www.facebook.com/thangduong.dev)
+- [BADRUZEUS SHAVA - Hackintosh Indonesia](https://www.facebook.com/badruzeus)
+- Original repository by [thuanvoit](https://github.com/thuanvoit/Hackintosh-Dell-Inspiron-3520)
