@@ -13,15 +13,16 @@ Clover EFI configuration, patched ACPI files, and post-installation drivers for 
 ## Hardware Specifications
 | Component | Specification | Status |
 | :--- | :--- | :--- |
-| **CPU** | Intel Core i5-3230M @ 2.60 GHz (Ivy Bridge) | Supported |
-| **GPU** | Intel HD Graphics 4000 (1536 MB) | Supported (Full QE/CI) |
+| **CPU** | Intel Core i5-3230M @ 2.60 GHz (Ivy Bridge) | Supported (Native Power Management / SpeedStep via `PluginType=1`) |
+| **GPU** | Intel HD Graphics 4000 (1536 MB) | Supported (Full QE/CI via WhateverGreen) |
 | **RAM** | 8 GB DDR3 1600 MHz | Supported |
 | **Storage** | 500 GB HDD / SATA SSD | Supported |
+| **USB 3.0 / 2.0** | Intel 7-Series Panther Point (USB 3.0 SuperSpeed + Power Injection) | Supported (Native 5 Gbps via `FakePCIID_XHCIMux` + `SSDT-USBX`) |
 | **Wi-Fi + BT** | Broadcom BCM943225HM (Half Mini PCIe) | Supported (via `Post-Install/WiFi-BCM943225HM`) |
 | **Audio** | Cirrus Logic CS4213 | Supported (VoodooHDA 2.8.9) |
 | **Touchpad** | ALPS Trackpad (2 fingers scrolling) | Supported (via `Post-Install/Trackpad-ALPS`) |
 | **Webcam** | Integrated Webcam | Supported |
-| **Sleep / Wake** | Native S3 | Supported |
+| **Sleep / Wake** | Native S3 (Instant Wake fixed via `SSDT-GPRW`) | Supported |
 | **Microphone** | Internal Mic | Not working / Needs tuning |
 | **HDMI Video** | HDMI Output | Untested |
 
@@ -34,10 +35,14 @@ Hackintosh-Dell-Inspiron-3520/
 │   ├── BOOT/
 │   │   └── BOOTX64.efi               # UEFI Bootloader executable
 │   └── CLOVER/
-│       ├── ACPI/patched/             # Contains patched DSDT.aml and SSDT-PNLF.aml
-│       ├── config.plist              # Tuned Clover configuration for HD4000
+│       ├── ACPI/patched/             # Patched ACPI tables:
+│       │   ├── DSDT.aml              # Patched system DSDT
+│       │   ├── SSDT-PNLF.aml         # Display backlight injection
+│       │   ├── SSDT-USBX.aml         # USB bus power supply and current limits
+│       │   └── SSDT-GPRW.aml         # Eliminates instant wake from sleep
+│       ├── config.plist              # Tuned Clover config with GPRW patch & USB HighCurrent
 │       ├── drivers64UEFI/            # UEFI drivers (AptioMemoryFix, HFSPlus, APFS, etc.)
-│       ├── kexts/Other/              # Core kexts (Lilu, FakeSMC, Realtek, USB, etc.)
+│       ├── kexts/Other/              # Core kexts (Lilu, WhateverGreen, FakePCIID_XHCIMux, etc.)
 │       ├── misc/
 │       ├── themes/
 │       └── tools/
@@ -122,8 +127,20 @@ After booting into the installed macOS system:
 
 ---
 
+## Advanced Hardware Notes
+- **USB 3.0 Power Management & Routing:**
+  - Uses `FakePCIID_XHCIMux.kext` to route USB 2.0 companion ports on USB 3.0 connectors to `EH01`/`EH02`, allowing `XHC` to operate under the 15-port limit with native 5 Gbps SuperSpeed.
+  - `SSDT-USBX.aml` injects standard power properties (`kUSBSleepPowerSupply=2600mA`, `kUSBWakePowerSupply=3200mA`, `kUSBSleepPortCurrentLimit=2100mA`, `kUSBWakePortCurrentLimit=2100mA`) for high-current device charging and bus stability.
+- **Sleep / Wake Fix (`SSDT-GPRW`):**
+  - ACPI patch intercepts `GPRW(0x6D, 0x04)` calls from USB/LAN to avoid immediate wake when entering sleep state S3.
+- **Native CPU SpeedStep:**
+  - Handled via Clover's `PluginType=1` and generated C-States/P-States for `X86PlatformPlugin`.
+
+---
+
 ## Credits & Acknowledgements
 - [RehabMan](https://github.com/RehabMan) for DSDT patches, VoodooPS2, and kext tools.
+- [Acidanthera](https://github.com/acidanthera) for Lilu and WhateverGreen.
 - [Niemtin007](http://niemtin007.blogspot.com/)
 - [Hackintosh - The OS X on PC World](https://www.facebook.com/groups/hackintoshPC/)
 - [Hieu - Admin Hackintosh Facebook Page](https://www.facebook.com/cobaohieu)
